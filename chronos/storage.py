@@ -2,9 +2,11 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-DATA_FILE = Path("../data.json")
-LOG_FILE = Path("../chronos.log")
+CHRONOS_DIR = Path.home() / ".chronos"
+CHRONOS_DIR.mkdir(parents=True, exist_ok=True)
 
+DATA_FILE = CHRONOS_DIR / "data.json"   
+LOG_FILE = CHRONOS_DIR / "chronos.log"
 
 def load_data():
         if not DATA_FILE.exists():

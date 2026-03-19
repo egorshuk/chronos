@@ -5,8 +5,9 @@ from pathlib import Path
 from chronos.ui import print_error, print_success
 from chronos.storage import load_data, add_event, log
 
-
-CURRENT_FILE = Path("../current_activity.json")          # временный файл, для запущенной активности
+CHRONOS_DIR = Path.home() / ".chronos"
+CHRONOS_DIR.mkdir(parents=True, exist_ok=True)
+CURRENT_FILE = CHRONOS_DIR / "current_activity.json"            # временный файл для записи текущей активности
 
 @click.group()
 def cli():
@@ -48,11 +49,12 @@ def start(name):
 @cli.command()
 def stop():
         """завершить текущую активность, сохраняя duration и время окончания"""
+        import json
         from chronos.utils import format_duration
         from chronos.ui import print_stop
-        import json
+
         if not CURRENT_FILE.exists():
-                click.echo("нет запущенной активности")
+                click.echo("нет запущенной активности!")
                 return
       
         with CURRENT_FILE.open('r') as f:
@@ -62,29 +64,57 @@ def stop():
                        current = {}
 
         if not current:
-                print_error("нет запущенной активности")
+                print_error("нет запущенной активности!")
+                if CURRENT_FILE.exists(): CURRENT_FILE.unlink()         # удалить битый файл
                 return
 
-        name = current["name"]
         end_time = datetime.now()
         start_time = datetime.fromisoformat(current["start"])
-        duration = (end_time - start_time).total_seconds() / 3600
+        duration = (end_time - start_time).total_seconds() / 3600       # время в часах
 
         # добавляем само событие 
         add_event(
-               name=name, 
+               name=current["name"], 
                duration=duration, 
                start=current["start"], 
                end=end_time.isoformat()
         )
 
-        try: 
-               CURRENT_FILE.write_text("{}")
-        except Exception:
-               print_error("не удалось очистить current_activity.json, закройте редакторы и попробуйте вручную")
+        CURRENT_FILE.unlink()
 
-        print_stop(name, format_duration(duration))
-        log(f"stopped activity: {name}, duration {duration} h, end: {end_time.isoformat()}")
+        print_stop(current["name"], format_duration(duration))
+        log(f"stopped activity: {current["name"]}, duration {duration} h, end: {end_time.isoformat()}")
+
+@cli.command()
+def status():
+        """показать текущую активную задачу и время в работе"""
+        import json
+        from chronos.utils import format_duration
+        from chronos.ui import print_status, print_error # Импортируем консоль для красивого вывода
+    
+        if not CURRENT_FILE.exists():
+                print_error("сейчас никакая активность не запущена!")
+                return
+
+        try:
+                with CURRENT_FILE.open('r') as f:
+                        current = json.load(f)
+        except (json.JSONDecodeError, ValueError):
+                current = {}
+
+        if not current:
+                print_error("сейчас никакая активность не запущена!")
+                return
+
+        # Считаем, сколько времени прошло с момента старта до СЕЙЧАС
+        start_time = datetime.fromisoformat(current['start'])
+        elapsed = (datetime.now() - start_time).total_seconds() / 3600
+    
+        print_status(
+                name = current["name"],
+                start_time_str = start_time.strftime("%H:%M:%S"),
+                duration_str = format_duration(elapsed)
+        )
 
 @cli.command()
 @click.argument("name")
@@ -119,6 +149,8 @@ def add(name, time_str):
 
         add_event(name=name, duration=duration)
         print_add(name, format_duration(duration))
+
+
 
 @cli.command()
 def show():

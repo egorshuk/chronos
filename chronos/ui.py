@@ -11,10 +11,15 @@ def print_success(msg: str) -> None:
         """выводит сообщение об успехе зеленым"""
         console.print(f"[green]{msg}[/green]")
 
+def print_status(name: str, start_time_str: str, duration_str: str) -> None:
+    """Выводит информацию о текущей активной задаче."""
+    console.print(f"[bold blue]⚡ В работе:[/bold blue] {name}")
+    console.print(f"[dim]Запущено в:[/dim] {start_time_str}")
+    console.print(f"[dim]Прошло:[/dim] [bold cyan]{duration_str}[/bold cyan]")
+
 def print_start(name: str) -> None:
         """выводит сообщение о начале активности."""
         console.print(f"[bold green]▶ started[/bold green] {name}")
-
 
 def print_stop(name: str, duration: str) -> None:
         """выводит сообщение о завершении активности с длительностью."""
