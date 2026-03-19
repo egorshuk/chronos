@@ -32,7 +32,7 @@ def show_table(data: list) -> None:
         :param data: список словарей с ключами name, duration, start, end
         :param format_duration: функция для форматирования duration в 'чч:мм'
         """
-        from utils import format_datetime, format_duration
+        from chronos.utils import format_datetime, format_duration
 
         if not data:
                 console.print("[red]no entries yet[/red]")

@@ -2,8 +2,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-DATA_FILE = Path("data.json")
-LOG_FILE = Path("chronos.log")
+DATA_FILE = Path("../data.json")
+LOG_FILE = Path("../chronos.log")
 
 
 def load_data():

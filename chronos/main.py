@@ -2,11 +2,11 @@ import click
 from datetime import datetime 
 from pathlib import Path
 
-from ui import print_error, print_success
-from storage import load_data, add_event, log
+from chronos.ui import print_error, print_success
+from chronos.storage import load_data, add_event, log
 
 
-CURRENT_FILE = Path("current_activity.json")          # временный файл, для запущенной активности
+CURRENT_FILE = Path("../current_activity.json")          # временный файл, для запущенной активности
 
 @click.group()
 def cli():
@@ -18,7 +18,7 @@ def cli():
 def start(name): 
         """начать активность, запоминаем время старта"""
         import json
-        from ui import print_start
+        from chronos.ui import print_start
         if not CURRENT_FILE.exists():
                 CURRENT_FILE.write_text("{}")
         
@@ -48,8 +48,8 @@ def start(name):
 @cli.command()
 def stop():
         """завершить текущую активность, сохраняя duration и время окончания"""
-        from utils import format_duration
-        from ui import print_stop
+        from chronos.utils import format_duration
+        from chronos.ui import print_stop
         import json
         if not CURRENT_FILE.exists():
                 click.echo("нет запущенной активности")
@@ -91,8 +91,8 @@ def stop():
 @click.argument("time_str")
 def add(name, time_str):
         """добавление активностью с заданной длительностью"""
-        from utils import format_duration
-        from ui import print_add
+        from chronos.utils import format_duration
+        from chronos.ui import print_add
 
         def parse_duration(s: str) -> float:
                 """преобразует строку 'чч:мм', 'чч,мм', 'чч.мм' или float в часы (float)"""
@@ -123,8 +123,7 @@ def add(name, time_str):
 @cli.command()
 def show():
         """показать все записи"""
-        from utils import format_duration
-        from ui import show_table
+        from chronos.ui import show_table
 
         data = load_data()
 

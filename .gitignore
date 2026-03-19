@@ -1,5 +1,6 @@
 venv/
 __pycache__/
+chronos.egg-info/
 *.pyc
 
 data.json
