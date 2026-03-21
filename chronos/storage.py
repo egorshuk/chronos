@@ -26,7 +26,7 @@ def save_data(data):
                 json.dump(data, f, indent=4)
 
 def log(message: str):
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
         with open(LOG_FILE, "a") as f:
                 f.write(f"[{timestamp}] {message}\n")
 def add_event(name: str, duration: float = None, start: str = None, end: str = None):
@@ -48,3 +48,18 @@ def add_event(name: str, duration: float = None, start: str = None, end: str = N
         data.append(entry)
         save_data(data)
         log(f"added event: {entry}")
+
+def delete_event(event_id: int):
+        """
+        удаляет автиность по её ID (просто порядковый номер, начиная с 1)
+        возвращает успех или неудача (если ID не существует)
+        """
+        data = load_data()
+        real_index = event_id - 1 
+        
+        if 0 <= real_index < len(data):
+                deleted_entry = data.pop(real_index)
+                save_data(data)
+                log(f"deleted event (ID {event_id}): {deleted_entry}")
+                return True, deleted_entry
+        return False, None

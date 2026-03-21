@@ -31,34 +31,47 @@ def print_add(name: str, duration: str) -> None:
 
 
 def show_table(data: list) -> None:
-        """
-        отображает список активностей в виде таблицы.
-
-        :param data: список словарей с ключами name, duration, start, end
-        :param format_duration: функция для форматирования duration в 'чч:мм'
-        """
-        from chronos.utils import format_datetime, format_duration
+        """отображает список активности по дням"""
+        from collections import defaultdict
+        from chronos.utils import format_datetime, format_duration, get_date
 
         if not data:
-                console.print("[red]no entries yet[/red]")
+                print_error("записей пока нет")
                 return
 
-        table = Table(title="chronos activities")
+        # групировка по дням
+        grouped_data = defaultdict(list)
+        for entry in data: 
+                date = get_date(entry.get("start"))
+                grouped_data[date].append(entry)
 
-        table.add_column("name", style="cyan")
-        table.add_column("duration", style="green")
-        table.add_column("start", style="dim")
-        table.add_column("end", style="dim")
+        for date in sorted(grouped_data.keys()):
+                day_entries = grouped_data[date]
 
-        for entry in data:
-                duration = entry.get("duration")
-                duration_str = format_duration(duration) if duration else "-"
+                table = Table(title=f"📅 дата: {date}", title_style="bold magenta", box=None)
+                table.add_column("ID", style="magenta", justify="right")
+                table.add_column("название", style="cyan", width=30)
+                table.add_column("длительность", style="green")
+                table.add_column("старт", style="dim")
+                table.add_column("конец", style="dim")
 
-                table.add_row(
-                        entry["name"],
-                        duration_str,
-                        format_datetime(entry.get("start")),
-                        format_datetime(entry.get("end")),
-                )
+                total_day_hours = 0.0
 
-        console.print(table)
+                for entry in day_entries:
+                        duration = entry.get("duration") or 0.0
+                        total_day_hours += duration
+                        
+                        duration_str = format_duration(duration) if duration else "-"
+
+                        table.add_row(
+                                str(entry.get("_id", "?")),
+                                entry["name"] ,
+                                duration_str,
+                                format_datetime(entry.get("start")),
+                                format_datetime(entry.get("end"))
+                        )
+                
+                console.print(table)
+                
+                console.print(f"[bold white]Итого за день:[/bold white] [bold yellow]{format_duration(total_day_hours)}[/bold yellow]")
+                console.print("-" * 40) # Разделитель между днями

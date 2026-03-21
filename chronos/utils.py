@@ -12,3 +12,12 @@ def format_datetime(iso_str: str) -> str:
                 return datetime.fromisoformat(iso_str).strftime("%H:%M")
         except Exception:
                 return "-"
+
+
+def get_date(iso_str: str) -> str:
+        """извлекает дату из ISO string"""
+        from datetime import datetime
+        try:
+                return datetime.fromisoformat(iso_str).strftime("%Y-%m-%d")
+        except Exception:
+                return "unknown day"
