@@ -75,3 +75,43 @@ def show_table(data: list) -> None:
                 
                 console.print(f"[bold white]Итого за день:[/bold white] [bold yellow]{format_duration(total_day_hours)}[/bold yellow]")
                 console.print("-" * 40) # Разделитель между днями
+
+def draw_timeline(data: list) -> None:
+        """рисует визуальный таймлайн дня"""
+        from chronos.utils import get_day_fraction, get_date, format_datetime
+        from datetime import datetime
+
+        if not data:
+                print_error("нет данных для таймлайна")
+        
+        # первая запись 
+        date_str = get_date(data[0]['start'])
+        console.print(f"\n[bold]📈 Таймлайн за {date_str}:[/bold]")
+
+        # печать шкалы
+        console.print("[dim]00:00  03:00  06:00  09:00  12:00  15:00  18:00  21:00  24:00[/dim]")
+        console.print("[dim]  └──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘  [/dim]")
+
+        WIDTH = 57 
+
+        for entry in data:
+                start_f = get_day_fraction(entry["start"])
+                end_f = get_day_fraction(entry["end"])
+
+                # считаем отступы
+                start_pos = int(start_f * WIDTH)
+                end_pos = int(end_f * WIDTH)
+                length = max(1, end_pos - start_pos)
+
+                # создаем полоску
+                bar_background = "░" * start_pos
+                bar_content = "█" * length
+                tail_length = WIDTH - (start_pos + length)
+                bar_tail = "░" * tail_length if tail_length > 0 else ""
+
+                # Форматируем время начала и конца через нашу утилиту
+                t_start = format_datetime(entry['start'])
+                t_end = format_datetime(entry['end'])
+        
+                console.print(f"  {bar_background}[cyan]{bar_content}[/cyan]{bar_tail} [bold]{t_start}-{t_end}[/bold] {entry['name']}")
+        console.print("")

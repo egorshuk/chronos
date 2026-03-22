@@ -18,6 +18,16 @@ def get_date(iso_str: str) -> str:
         """извлекает дату из ISO string"""
         from datetime import datetime
         try:
-                return datetime.fromisoformat(iso_str).strftime("%Y-%m-%d")
+                return datetime.fromisoformat(iso_str).strftime("%d.%m.%Y")
         except Exception:
                 return "unknown day"
+
+def get_day_fraction(iso_str: str) -> float:
+        """возвращает время в процентах от начала для (0.0 - 1.0)"""
+        from datetime import datetime
+        try:
+                dt = datetime.fromisoformat(iso_str)
+                return (dt.hour * 3600 + dt.minute * 60 + dt.second) / 86400
+        except Exception:
+                return 0.0
+        

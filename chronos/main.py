@@ -210,11 +210,31 @@ def show(today):
                 entry["_id"] = i + 1
 
         if today:
-                current_date = datetime.now().strftime("%Y-%m-%d")
+                current_date = datetime.now().strftime("%d.%m.%Y")
                 data = [entry for entry in data if get_date(entry.get("start")) == current_date]
 
         show_table(data)
 
+
+@cli.command()
+def timeline():
+        """визуализация таймлайна активностей за сегодня"""
+        from chronos.ui import draw_timeline, print_error
+        from chronos.utils import get_date
+        from datetime import datetime
+
+        data = load_data()
+
+        today_str = datetime.now().strftime("%d.%m.%Y")
+        day_data = [entry for entry in data if get_date(entry.get("start")) == today_str]
+
+        if not day_data:
+                print_error("за сегодня еще нет завершенных активностей")
+                return
+        
+        day_data.sort(key=lambda x: x['start'])
+
+        draw_timeline(day_data)
 
 
 if __name__ == "__main__":

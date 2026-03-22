@@ -26,7 +26,7 @@ def save_data(data):
                 json.dump(data, f, indent=4)
 
 def log(message: str):
-        timestamp = datetime.now().strftime("%m-%d-%Y %H:%M:%S")
+        timestamp = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
         with open(LOG_FILE, "a") as f:
                 f.write(f"[{timestamp}] {message}\n")
 def add_event(name: str, duration: float = None, start: str = None, end: str = None):
