@@ -39,7 +39,7 @@ chronos stop
 chronos add "Учеба" 1:30
 
 # Добавить задачу, указав время старта
-chronos add "Митинг" 0:30 --start 14:00
+chronos add "Чтение" 0:30 --start 14:00
 ```
 
 ### Просмотр и Аналитика
@@ -56,6 +56,7 @@ chronos timeline --compact
 
 ### Удаление
 ```bash
+# Удалить активность с ID = 5
 chronos delete 5
 ```
 
@@ -70,6 +71,3 @@ chronos delete 5
   • coding       12:00-13:30, 20:50-22:20
   • math         19:59-20:06
 ```
-
-## 📝 Лицензия
-MIT
