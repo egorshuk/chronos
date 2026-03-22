@@ -76,7 +76,7 @@ def show_table(data: list) -> None:
                 console.print(f"[bold white]Итого за день:[/bold white] [bold yellow]{format_duration(total_day_hours)}[/bold yellow]")
                 console.print("-" * 40) # Разделитель между днями
 
-def draw_timeline(data: list) -> None:
+def draw_timeline(data: list, compact: bool = False) -> None:
         """рисует визуальный таймлайн дня"""
         from chronos.utils import get_day_fraction, get_date, format_datetime
         from datetime import datetime
@@ -94,24 +94,52 @@ def draw_timeline(data: list) -> None:
 
         WIDTH = 57 
 
-        for entry in data:
-                start_f = get_day_fraction(entry["start"])
-                end_f = get_day_fraction(entry["end"])
+        if compact:
+                from collections import defaultdict
+                
+                timeline_chars = ["░"] * WIDTH
+                grouped_intervals = defaultdict(list)
+                
+                # заполняем шкалу
+                for entry in data:
+                        start_pos = int(get_day_fraction(entry["start"]) * WIDTH)
+                        end_pos = int(get_day_fraction(entry["end"]) * WIDTH)
+                        length = max(1, end_pos - start_pos)
 
-                # считаем отступы
-                start_pos = int(start_f * WIDTH)
-                end_pos = int(end_f * WIDTH)
-                length = max(1, end_pos - start_pos)
+                        for i in range(start_pos, min(start_pos + length, WIDTH)):
+                                timeline_chars[i] = "█"
 
-                # создаем полоску
-                bar_background = "░" * start_pos
-                bar_content = "█" * length
-                tail_length = WIDTH - (start_pos + length)
-                bar_tail = "░" * tail_length if tail_length > 0 else ""
+                        # выводим сгрупированные по названию активности
+                        name = entry.get("name", "без названия")
+                        t_start = format_datetime(entry["start"])
+                        t_end = format_datetime(entry["end"])
+                        grouped_intervals[name].append(f"{t_start}-{t_end}")
 
-                # Форматируем время начала и конца через нашу утилиту
-                t_start = format_datetime(entry['start'])
-                t_end = format_datetime(entry['end'])
+                console.print(f"  [cyan]{''.join(timeline_chars)}[/cyan]\n")
+                
+                # вывод сгрупированных задач
+
+                for name, intervals in grouped_intervals.items():
+                        interval_string = ", ".join(intervals)
+                        console.print(f"  [dim]•[/dim] [cyan]{name:<12}[/cyan] [bold]{interval_string}[/bold]")
+
+        else:
+                for entry in data:
+
+                        # считаем отступы
+                        start_pos = int(get_day_fraction(entry["start"]) * WIDTH)
+                        end_pos = int(get_day_fraction(entry["end"]) * WIDTH)
+                        length = max(1, end_pos - start_pos)
+
+                        # создаем полоску
+                        bar_background = "░" * start_pos
+                        bar_content = "█" * length
+                        tail_length = WIDTH - (start_pos + length)
+                        bar_tail = "░" * tail_length if tail_length > 0 else ""
+
+                        # Форматируем время начала и конца через нашу утилиту
+                        t_start = format_datetime(entry['start'])
+                        t_end = format_datetime(entry['end'])
         
-                console.print(f"  {bar_background}[cyan]{bar_content}[/cyan]{bar_tail} [bold]{t_start}-{t_end}[/bold] {entry['name']}")
+                        console.print(f"  {bar_background}[cyan]{bar_content}[/cyan]{bar_tail} [bold]{t_start}-{t_end}[/bold] {entry['name']}")
         console.print("")

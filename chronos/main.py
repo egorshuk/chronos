@@ -74,6 +74,11 @@ def stop():
         end_time = datetime.now()
         start_time = datetime.fromisoformat(current["start"])
         duration = (end_time - start_time).total_seconds() / 3600       # время в часах
+        
+        if end_time.day > start_time.day:
+                print_error("невозможно добавить активность, которая длится несколько дней")
+                if CURRENT_FILE.exists(): CURRENT_FILE.unlink()
+                return
 
         # добавляем само событие 
         add_event(
@@ -205,6 +210,7 @@ def show(today):
         from datetime import datetime
 
         data = load_data()
+        data.sort(key=lambda x: x.get("start", ""))
 
         for i, entry in enumerate(data):
                 entry["_id"] = i + 1
@@ -217,7 +223,8 @@ def show(today):
 
 
 @cli.command()
-def timeline():
+@click.option("--compact", "-c", is_flag = True, help = "компактный вид таймлайна")
+def timeline(compact):
         """визуализация таймлайна активностей за сегодня"""
         from chronos.ui import draw_timeline, print_error
         from chronos.utils import get_date
@@ -234,7 +241,7 @@ def timeline():
         
         day_data.sort(key=lambda x: x['start'])
 
-        draw_timeline(day_data)
+        draw_timeline(day_data, compact=compact)
 
 
 if __name__ == "__main__":
